@@ -115,18 +115,27 @@ class QuestionTree < ActiveRecord::Base
 
 	def self.add_question(new_message, current_question)
 		puts "What question would #{new_message.message} be the answer to, instead of #{current_question.message}?"
-
+		#get new question from user
 		question_input = gets.chomp
 
-		new_question = QuestionTree.create(message: question_input, yes_id: new_message.id, no_id: current_question.id, parent_id: current_question.parent.parent.id)
+		#get the last correct question
+		source_question = current_question.parent
 
+		#create the new question in database with question_input
+		new_question = QuestionTree.create(message: question_input, yes_id: new_message.id, no_id: current_question.id, parent_id: source_question.id)
+
+		#set the source question's yes answer to the new question
+		source_question.yes_id = new_question.id
+
+		#update the wrong guess
 		current_question.parent_id = new_question.id
-		current_question.parent.parent.no_id = new_question.id
 
+		#update new_message
 		new_message.parent_id = new_question.id
 
+		#save it all
+		source_question.save!
 		current_question.save!
-		current_question.parent.parent.save!
 		new_message.save!
 	end
 end
