@@ -1,7 +1,7 @@
 QuestionTree.destroy_all
 
-question1 = QuestionTree.create(message: "Is it a robot?")
-question2 = QuestionTree.create(message: "Is it an animal?")
+question1 = QuestionTree.create(message: "Is it a robot")
+question2 = QuestionTree.create(message: "Is it an animal")
 
 answer1 = QuestionTree.create(message: "Hedonism Bot")
 answer2 = QuestionTree.create(message: "Armadillo")

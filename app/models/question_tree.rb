@@ -17,8 +17,6 @@ class QuestionTree < ActiveRecord::Base
 		# Future regex
 		puts "Please enter 'yes' or 'no'."
 		input = gets.chomp
-
-		return input
 	end
 
 	def self.load
@@ -34,7 +32,7 @@ class QuestionTree < ActiveRecord::Base
 	end
 
 	def self.start_over
-		puts "Would you like to play again?"
+		puts "Would you like to play again? Please enter 'yes' or 'no'."
 
 		input = gets.chomp 
 
@@ -91,12 +89,36 @@ class QuestionTree < ActiveRecord::Base
 		if input == "yes"
 			self.yes.ask
 		elsif input == "no"
-			self.no.ask
+			if self.no_id.nil?
+				puts "Shucks, we're beat."
+				QuestionTree.add_other_answer(self)
+			else
+				self.no.ask
+			end
 		else
 			input = error_handler
 
 			self.travel_tree(input)
 		end
+	end
+
+	def self.add_other_answer(current_question)
+		puts "Please enter what you were thinking of:"
+
+		input = gets.chomp
+
+		new_message = QuestionTree.create(message: input)
+
+		new_message.parent_id = current_question.id
+
+		current_question.no_id = new_message.id
+
+		new_message.save!
+		current_question.save!
+
+		puts "Thanks for making me smarter!"
+		QuestionTree.start_over
+
 	end
 
 	def self.add_answer(current_question)
@@ -137,5 +159,9 @@ class QuestionTree < ActiveRecord::Base
 		source_question.save!
 		current_question.save!
 		new_message.save!
+
+		#politely thank the player and ask if they'd like to play again
+		puts "Thanks for making me smarter!"
+		QuestionTree.start_over
 	end
 end
